@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">osChat</string>
+    <string name="action_settings">Settings</string>
+    <string name="create">CREATE GROUP</string>
+    <string name="group_name">Group name</string>
+    <string name="enter_a_unique_group_name">Enter a unique group name.</string>
+    <string name="group_creation_completed">Group creation completed</string>
+    <string name="add_group">ADD GROUP</string>
+    <string name="add_an_existing_group">Add an existing group</string>
+    <string name="my_groups">My groups</string>
+</resources>

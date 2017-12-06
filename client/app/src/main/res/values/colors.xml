@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#ffad3b</color>
+    <color name="colorPrimaryDark">#ff9c12</color>
+    <color name="colorAccent">#347efb</color>
+    <color name="colorAccentDark">#2073ff</color>
+    <color name="nav">#292929</color>
+    <color name="cancel">#ff3340</color>
+
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+</resources>
