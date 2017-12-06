@@ -6,6 +6,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         @BindView(R.id.createGroupProgress) ProgressBar createGroupProgress;
 
 
-
+    Animation in;
     private int widgetShowing = 0;
     private void showWidget(int widget){
         createGroupWidget.setVisibility(View.GONE);
@@ -47,14 +49,18 @@ public class MainActivity extends AppCompatActivity {
             createFab.setImageDrawable(getResources().getDrawable(R.drawable.close));
             createFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.cancel)));
             widgetShowing = 2;
+            createGroupWidget.startAnimation(in);
         }
         else if (widget == 1 && widgetShowing != 1){
             addGroupWidget.setVisibility(View.VISIBLE);
             widgetShowing = 1;
             addFab.setImageDrawable(getResources().getDrawable(R.drawable.close));
             addFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.cancel)));
+            addGroupWidget.startAnimation(in);
         }
-        else{widgetShowing = 0;}
+        else{
+            widgetShowing = 0;
+        }
     }
 
 
@@ -95,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initUI(){
-        toolbar.setTitleTextColor(getResources().getColor(R.color.colorPrimaryDark));
         setSupportActionBar(toolbar);
+
         createFab.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {showWidget(2);}
         });
@@ -113,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         addGroupProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
         createGroupProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
+
+        in = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_in);
     }
 
     @Override

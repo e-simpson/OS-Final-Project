@@ -78,7 +78,7 @@
                     android:drawablePadding="10dp"
                     android:drawableRight="@drawable/check"
                     android:drawableTint="@color/white"
-                    android:text="@string/add_group"
+                    android:text="@string/create_group"
                     android:textColor="@color/white" />
             </LinearLayout>
         </LinearLayout>
@@ -148,7 +148,7 @@
                     android:drawablePadding="10dp"
                     android:drawableRight="@drawable/check"
                     android:drawableTint="@color/white"
-                    android:text="@string/create_group"
+                    android:text="@string/add_group"
                     android:textColor="@color/white" />
             </LinearLayout>
         </LinearLayout>
@@ -168,8 +168,7 @@
             android:orientation="vertical">
 
         </LinearLayout>
-
-
+        
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>
