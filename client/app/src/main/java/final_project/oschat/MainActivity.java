@@ -1,6 +1,4 @@
 package final_project.oschat;
-
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,18 +6,16 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
+    //UI control variables
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.createFab) FloatingActionButton createFab;
     @BindView(R.id.addFab) FloatingActionButton addFab;
@@ -27,19 +23,16 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.addGroupWidget) LinearLayout addGroupWidget;   //widget 1
         @BindView(R.id.addButton) Button addGroupButton;
         @BindView(R.id.addGroupName) EditText addGroupNameEditText;
-//        @BindView(R.id.newGroupProgress) ProgressBar addGroupProgress;
-//        @BindView(R.id.newGroupProgressCheck) ImageView addGroupCheck;
+        @BindView(R.id.addGroupProgress) ProgressBar addGroupProgress;
 
     @BindView(R.id.createGroupWidget) LinearLayout createGroupWidget;   //widget 2
         @BindView(R.id.createButton) Button createGroupButton;
         @BindView(R.id.newGroupName) EditText createGroupNameEditText;
-//        @BindView(R.id.newGroupProgress) ProgressBar createGroupProgress;
-//        @BindView(R.id.newGroupProgressCheck) ImageView createGroupCheck;
+        @BindView(R.id.createGroupProgress) ProgressBar createGroupProgress;
+
 
 
     private int widgetShowing = 0;
-
-
     private void showWidget(int widget){
         createGroupWidget.setVisibility(View.GONE);
         createFab.setImageDrawable(getResources().getDrawable(R.drawable.create));
@@ -65,26 +58,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     private void submitCreateGroup(){
         if (createGroupNameEditText.getText().length() == 0){
             Snackbar.make(createGroupWidget, "Enter a valid group name.", Snackbar.LENGTH_LONG).show();
             return;
         }
         createGroupNameEditText.setEnabled(false);
-        createGroupButton.setEnabled(false);
-        createFab.setEnabled(false); addFab.setEnabled(false);
-//        createGroupProgress.setVisibility(View.VISIBLE);
+        createGroupButton.setEnabled(false); createGroupButton.setVisibility(View.GONE);
+        createGroupProgress.setVisibility(View.VISIBLE);
 
         //start thread process
     }
-
     public void successCreateGroup(){
-//        createGroupProgress.setVisibility(View.GONE);
-//        createGroupCheck.setVisibility(View.VISIBLE);
+        createGroupProgress.setVisibility(View.GONE);
+        createGroupButton.setEnabled(true); createGroupButton.setVisibility(View.VISIBLE);
+        Snackbar.make(createGroupWidget, "Group created successfully", Snackbar.LENGTH_LONG).show();
     }
+
 
     private void submitAddGroup(){
         if (addGroupNameEditText.getText().length() == 0){
@@ -92,20 +82,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         addGroupNameEditText.setEnabled(false);
-        addGroupButton.setEnabled(false);
-        createFab.setEnabled(false); addFab.setEnabled(false);
-//        addGroupProgress.setVisibility(View.VISIBLE);
+        addGroupButton.setEnabled(false); addGroupButton.setVisibility(View.GONE);
+        addGroupProgress.setVisibility(View.VISIBLE);
 
         //start thread process
     }
-
     public void successAddGroup(){
-//        addGroupProgress.setVisibility(View.GONE);
-//        addGroupCheck.setVisibility(View.VISIBLE);
+        addGroupProgress.setVisibility(View.GONE);
+        addGroupButton.setEnabled(true); addGroupButton.setVisibility(View.VISIBLE);
+        Snackbar.make(addGroupWidget, "Group added successfully", Snackbar.LENGTH_LONG).show();
     }
-
-
-
 
 
     private void initUI(){
@@ -118,13 +104,15 @@ public class MainActivity extends AppCompatActivity {
             @Override public void onClick(View view) {showWidget(1);}
         });
 
-
         createGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {submitCreateGroup();}
         });
         addGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {submitAddGroup();}
         });
+
+        addGroupProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
+        createGroupProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override
@@ -134,7 +122,5 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initUI();
     }
-
-
 
 }

@@ -7,5 +7,6 @@
     <string name="group_creation_completed">Group creation completed</string>
     <string name="add_group">ADD GROUP</string>
     <string name="add_an_existing_group">Add an existing group</string>
-    <string name="my_groups">My groups</string>
+    <string name="my_groups">My chats</string>
+    <string name="create_group">CREATE GROUP</string>
 </resources>
