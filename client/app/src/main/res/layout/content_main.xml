@@ -23,7 +23,7 @@
             android:padding="30dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/roundbox_accent"
+            android:background="@drawable/roundbox_uiblue"
             android:elevation="4dp"
             android:focusable="true"
             android:orientation="vertical"
@@ -90,7 +90,7 @@
             android:padding="30dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/roundbox_accent"
+            android:background="@drawable/roundbox_uiblue"
             android:elevation="4dp"
             android:focusable="true"
             android:orientation="vertical"
@@ -159,16 +159,16 @@
             android:text="@string/my_groups"
             android:textAlignment="textStart"
             android:textColor="@color/nav"
-            android:textSize="35sp" />
+            android:textSize="35sp"
+            android:paddingBottom="10dp"/>
 
         <LinearLayout
             android:id="@+id/chatDisplay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
         </LinearLayout>
-        
+
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>
