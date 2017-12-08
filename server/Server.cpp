@@ -53,17 +53,16 @@ class ServerThread : Thread {
                     //TODO
                     //system("./Chatroom " + portNum);
                     // Add chatroom name and port number to map
-                    //TODO
                     chatrooms->rooms[portNum-2001] = name;
                     // Return chatroom name and port number in response
                     response =  name + " is now on port: " + std::to_string(portNum);
+
                 }
 
                 // handle join Chat Room request
                 else if (request->ToString().find("Join") != std::string::npos){
                     // Find chatroom port from map,
                     std::string name = request->ToString().substr(request->ToString().find(" ") + 1);
-                    // TODO
                     int portNum = 0;
                     for (int i = 0; i < this->nextPort->port - 2001; i++) {
                         if (name == chatrooms->rooms[i]) {
@@ -79,7 +78,6 @@ class ServerThread : Thread {
                 else if (request->ToString().find("Get") != std::string::npos){
                     response =  "Running Chatrooms:\n";
                     // Return a list of chatrooms and port numbers if theyre public
-                    // TODO
                     for (int i = 0; i < this->nextPort->port - 2001; i++) {
                         int portNum = i + 2001;
                        std::string chatInfo = chatrooms->rooms[i] + " " + std::to_string(portNum);
