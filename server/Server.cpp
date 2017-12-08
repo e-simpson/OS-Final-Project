@@ -7,7 +7,7 @@
 #include <vector>
 #include <map>
 #include "SharedObject.h"
-
+#include "Semaphore.h"
 using namespace Sync;
 
 class SharedMap {
@@ -47,7 +47,7 @@ class ServerThread : Thread {
                 // Handle create new Chat Room request
                 if (request->ToString().find("Create") != std::string::npos){
                     // Calculate next port number n
-                    int portNum = this->nextPort.get()->port++;
+                    int portNum = this->nextPort->port++;
                     std::string name = request->ToString().substr(request->ToString().find(" ") + 1);
                     // Start new chatroom process with port number n
                     //TODO
@@ -65,7 +65,7 @@ class ServerThread : Thread {
                     std::string name = request->ToString().substr(request->ToString().find(" ") + 1);
                     // TODO
                     int portNum = 0;
-                    for (int i = 0; i < this->nextPort.get()->port - 2001; i++) {
+                    for (int i = 0; i < this->nextPort->port - 2001; i++) {
                         if (name == chatrooms->rooms[i]) {
                             portNum = i + 2001;
                             response = name + " is running on port: " + std::to_string(portNum);
@@ -80,10 +80,10 @@ class ServerThread : Thread {
                     response =  "Running Chatrooms:\n";
                     // Return a list of chatrooms and port numbers if theyre public
                     // TODO
-                    for (int i = 0; i < this->nextPort.get()->port - 2001; i++) {
-
-                       std::string chatInfo = chatrooms->rooms[i] + " " + std::to_string(i+2001) + "\n";
-                        response += chatrooms->rooms[i] + "\n";
+                    for (int i = 0; i < this->nextPort->port - 2001; i++) {
+                        int portNum = i + 2001;
+                       std::string chatInfo = chatrooms->rooms[i] + " " + std::to_string(portNum);
+                        response += chatInfo + "\n";
                     }
                 }
 
