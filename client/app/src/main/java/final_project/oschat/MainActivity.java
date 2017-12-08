@@ -1,4 +1,5 @@
 package final_project.oschat;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -12,8 +13,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -75,51 +78,49 @@ public class MainActivity extends AppCompatActivity {
 
 
     Animation groupIn;
-    private void addGroupToLayout(int groupID, String groupName){
-        final LinearLayout groupButton = new LinearLayout(this);
-        groupButton.setBackground((getResources().getDrawable(R.drawable.roundbox_accent)));
-        groupButton.setPadding(60,30,60,30);
+    private void addGroupToLayout(int groupID, final String groupName){
+        final LinearLayout chatroomButton = new LinearLayout(this);
+        chatroomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_group)));
+        chatroomButton.setPadding(60,30,60,30);
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, 20, 0, 20);
-        groupButton.setLayoutParams(params);
+        params.setMargins(10, 20, 10, 20);
+        chatroomButton.setLayoutParams(params);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             TypedArray ta = obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground});
             Drawable drawableFromTheme = ta.getDrawable(0 );
             ta.recycle();
-            groupButton.setForeground(drawableFromTheme);
+            chatroomButton.setForeground(drawableFromTheme);
         }
 
-        LinearLayout top = new LinearLayout(this);
-        top.setOrientation(LinearLayout.HORIZONTAL);
-        top.setGravity(Gravity.CENTER);
-        groupButton.addView(top);
-
         TextView name = new TextView(this);
-            name.setTextColor(getResources().getColor(R.color.black));
+            name.setTextColor(getResources().getColor(R.color.white));
             name.setTextSize(20);
             name.setText(groupName);
-            name.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            top.addView(name);
+            name.setGravity(Gravity.CENTER_VERTICAL);
+            name.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            chatroomButton.addView(name);
 
-//        TextView members = new TextView(this);
-//        members.setTextColor(getResources().getColor(R.color.black));
-//        members.setTextSize(10);
-//        members.setText("Members: " + 0);
-//        members.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//        members.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
-//        top.addView(members);
-
-        groupButton.setClickable(true);
-        groupButton.setOnClickListener(new View.OnClickListener() {
+        chatroomButton.setClickable(true);
+        chatroomButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                groupButton.startAnimation(groupIn);
+                Intent i = new Intent(getBaseContext(), ChatView.class);
+                i.putExtra("chatroom_name", groupName);
+                MainActivity.this.startActivity(i);
             }
         });
 
-        groupList.addView(groupButton);
+        TranslateAnimation translate = new TranslateAnimation(0, 0, 200, 0);
+        translate.setFillAfter(true);
+        translate.setDuration(800 + groupID*70);
+        chatroomButton.startAnimation(translate);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {chatroomButton.setElevation(6);}
+
+        groupList.addView(chatroomButton);
     }
+
 
 
 
@@ -158,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         Snackbar.make(addGroupWidget, "Group added successfully", Snackbar.LENGTH_LONG).show();
     }
 
-
     private void initUI(){
         setSupportActionBar(toolbar);
 
@@ -179,8 +179,9 @@ public class MainActivity extends AppCompatActivity {
         addGroupProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
         createGroupProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
 
-        groupIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_in);
         widgetIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_in);
+        groupIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_slide_up_in);
+
     }
 
     @Override
@@ -190,9 +191,13 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         initUI();
 
-        for (int i = 1; i <= 5; i++) {
-            addGroupToLayout(i,"Group " + i);
+        for (int i = 1; i <= 10; i++) {
+            addGroupToLayout(i,"Chatroom " + i);
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 }

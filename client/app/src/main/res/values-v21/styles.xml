@@ -10,7 +10,7 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="Creator.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Chat.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorAccent</item>
         <item name="colorPrimaryDark">@color/colorAccentDark</item>
         <item name="colorAccent">@color/colorPrimary</item>

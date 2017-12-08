@@ -6,24 +6,24 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="final_project.oschat.MainActivity"
-    tools:showIn="@layout/activity_main"
-    android:paddingTop="30dp">
+    tools:showIn="@layout/activity_main">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingRight="30dp"
-        android:paddingLeft="30dp">
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="30dp">
 
         <LinearLayout
             android:id="@+id/createGroupWidget"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="10dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/roundbox_uiblue"
+            android:background="@drawable/roundbox_accent"
             android:elevation="4dp"
             android:focusable="true"
             android:orientation="vertical"
@@ -88,9 +88,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="10dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/roundbox_uiblue"
+            android:background="@drawable/roundbox_accent"
             android:elevation="4dp"
             android:focusable="true"
             android:orientation="vertical"
@@ -160,14 +160,18 @@
             android:textAlignment="textStart"
             android:textColor="@color/nav"
             android:textSize="35sp"
-            android:paddingBottom="10dp"/>
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"/>
 
         <LinearLayout
             android:id="@+id/chatDisplay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:orientation="vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="30dp"/>
 
     </LinearLayout>
 
