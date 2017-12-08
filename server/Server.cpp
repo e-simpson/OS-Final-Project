@@ -51,6 +51,7 @@ class ServerThread : Thread {
                     std::string name = request->ToString().substr(request->ToString().find(" ") + 1);
                     // Start new chatroom process with port number n
                     //TODO
+                    //system("./Chatroom " + portNum);
                     // Add chatroom name and port number to map
                     //TODO
                     chatrooms->rooms[portNum-2001] = name;
@@ -80,7 +81,7 @@ class ServerThread : Thread {
                     // Return a list of chatrooms and port numbers if theyre public
                     // TODO
                     for (int i = 0; i < this->nextPort.get()->port - 2001; i++) {
-                            
+
                        std::string chatInfo = chatrooms->rooms[i] + " " + std::to_string(i+2001) + "\n";
                         response += chatrooms->rooms[i] + "\n";
                     }
