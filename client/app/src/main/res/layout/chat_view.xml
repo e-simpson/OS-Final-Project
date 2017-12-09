@@ -1,50 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:id="@+id/chatView">
+    android:gravity="center"
+    android:layout_gravity="center">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/chatViewToolbar"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorAccent"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
-    </android.support.design.widget.AppBarLayout>
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/chatViewToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/colorAccent"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        </android.support.design.widget.AppBarLayout>
+
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/ll_send_message"
+        android:layout_below="@+id/appBarLayout"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/chats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"/>
+    </ScrollView>
 
     <LinearLayout
-        android:id="@+id/chats"
-        android:layout_width="match_parent"
-        android:layout_height="460dp"
-        android:focusable="true"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="10dp">
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </ScrollView>
-
-    </LinearLayout>
-
-    <EditText
+        android:id="@+id/ll_send_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textMultiLine" />
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
 
+        <EditText
+            android:id="@+id/textBox"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_weight="5"
+            android:gravity="top|left"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="5"
+            android:minLines="1"
+            android:scrollHorizontally="false"
+            android:padding="15dp"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:theme="@style/editText"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/sendButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:gravity="center"
+            android:text="SEND"
+            style="?android:attr/borderlessButtonStyle"
+            android:clickable="true"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@color/colorAccent"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+</RelativeLayout>

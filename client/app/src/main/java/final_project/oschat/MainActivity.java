@@ -3,8 +3,10 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,17 +25,30 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
-
-    //UI control variables
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.createFab) FloatingActionButton createFab;
     @BindView(R.id.addFab) FloatingActionButton addFab;
     @BindView(R.id.toolbar_layout) CollapsingToolbarLayout toolbarLayout;
     @BindView(R.id.chatDisplay) LinearLayout groupList;
+    @BindView(R.id.actionText) TextView logText;
 
     @BindView(R.id.addGroupWidget) LinearLayout addGroupWidget;   //widget 1
         @BindView(R.id.addButton) Button addGroupButton;
@@ -44,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         @BindView(R.id.createButton) Button createGroupButton;
         @BindView(R.id.newGroupName) EditText createGroupNameEditText;
         @BindView(R.id.createGroupProgress) ProgressBar createGroupProgress;
+
 
 
     Animation widgetIn;
@@ -76,9 +92,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     Animation groupIn;
-    private void addGroupToLayout(int groupID, final String groupName){
+    public void addChatroomToList(int groupID, final String groupName){
         final LinearLayout chatroomButton = new LinearLayout(this);
         chatroomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_group)));
         chatroomButton.setPadding(60,30,60,30);
@@ -121,9 +136,6 @@ public class MainActivity extends AppCompatActivity {
         groupList.addView(chatroomButton);
     }
 
-
-
-
     private void submitCreateGroup(){
         if (createGroupNameEditText.getText().length() == 0){
             Snackbar.make(createGroupWidget, "Enter a valid group name.", Snackbar.LENGTH_LONG).show();
@@ -140,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
         createGroupButton.setEnabled(true); createGroupButton.setVisibility(View.VISIBLE);
         Snackbar.make(createGroupWidget, "Group created successfully", Snackbar.LENGTH_LONG).show();
     }
-
 
     private void submitAddGroup(){
         if (addGroupNameEditText.getText().length() == 0){
@@ -181,23 +192,98 @@ public class MainActivity extends AppCompatActivity {
 
         widgetIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_in);
         groupIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_slide_up_in);
-
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    AsyncTask currentAsync;
+    private class chatListGet extends AsyncTask<Void, Void, Void> {
+        String result;
+
+        protected Void doInBackground(Void... voids) {
+            try {
+                Socket socket;
+                try {socket = new Socket("127.0.0.1", 2000);}
+                catch (IOException e) {throw e;}
+                if (!socket.isConnected()){ return null;}
+
+                PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+                out.println("Get");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String incoming = null;
+                while (incoming == null) {
+                    incoming = in.readLine();
+                    if (incoming != null) {
+                        result = incoming;
+                        break;
+                    }
+                }
+
+                try {
+                    socket.close();
+                    out.flush();
+                    out.close();
+                    in.close();
+                }
+                catch (IOException e) {e.printStackTrace();}
+            }
+            catch (Exception e) {e.printStackTrace();}
+            return null;
+        }
+
+        @Override protected void onPostExecute(Void res) {
+            if (result != null){
+                groupList.removeAllViews();
+                try {
+                    JSONArray groupArray = new JSONArray(result);
+                    for (int i = 0; i < groupArray.length(); i++) {
+                        addChatroomToList(i, (String)groupArray.get(i));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            currentAsync = null;
+            logText.setText("");
+        }
+    }
+
+
+    ScheduledExecutorService exec;
+    void initScheduler(){
+        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+        exec.scheduleAtFixedRate(new Runnable() {
+            @Override public void run() {
+//                logText.setText("Updimadating");
+                if (currentAsync == null) {
+                    currentAsync = new chatListGet().execute();
+                }
+            }
+        }, 0, 5, TimeUnit.SECONDS);
+    }
+
+
+
+    @Override protected void onStop() {
+        super.onStop();
+        if (exec != null && !exec.isShutdown()){
+            exec.shutdown();
+        }
+        if (currentAsync != null && (!currentAsync.isCancelled() || currentAsync.getStatus() == AsyncTask.Status.RUNNING)){
+            currentAsync.cancel(true);
+        }
+    }
+
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initUI();
+        initScheduler();
 
-        for (int i = 1; i <= 10; i++) {
-            addGroupToLayout(i,"Chatroom " + i);
-        }
+        for (int i = 1; i <= 10; i++) { addChatroomToList(i,"Chatroom " + i);}
     }
 
-    @Override
-    protected void onStart() {
+    @Override protected void onStart() {
         super.onStart();
     }
 }

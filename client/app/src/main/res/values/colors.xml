@@ -8,7 +8,8 @@
     <color name="cancel">#ff3340</color>
     <color name="uiblue">#347efb</color>
     <color name="group">#dedede</color>
-    <color name="lightgrey">#a6a6a6</color>
+    <color name="grey">#cccccc</color>
+    <color name="lightgrey">#e6e6e6</color>
 
 
     <color name="white">#ffffff</color>
