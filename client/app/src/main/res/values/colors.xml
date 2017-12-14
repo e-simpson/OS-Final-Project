@@ -2,13 +2,14 @@
 <resources>
     <color name="colorPrimary">#30302e</color>
     <color name="colorPrimaryDark">#252523</color>
-    <color name="colorAccent">#ffd79f</color>
-    <color name="colorAccentDark">#e6b470</color>
+    <color name="colorAccent">#ff9808</color>
+    <color name="colorAccentDark">#e78700</color>
     <color name="nav">#292929</color>
     <color name="cancel">#ff3340</color>
     <color name="uiblue">#347efb</color>
     <color name="group">#dedede</color>
-
+    <color name="grey">#cccccc</color>
+    <color name="lightgrey">#e6e6e6</color>
 
 
     <color name="white">#ffffff</color>
