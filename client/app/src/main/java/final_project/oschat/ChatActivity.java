@@ -46,9 +46,9 @@ public class ChatActivity extends AppCompatActivity {
     @BindView(R.id.textBox) EditText textBox;
     @BindView(R.id.sendButton) Button sendButton;
 
+    AsyncTask currentAsync;
+    ScheduledExecutorService timedExecutor;
     private Intent intent;
-    private AsyncTask currentAsync;
-    private ScheduledExecutorService timedExecutor;
     private Boolean startAnimationComplete = false;
     private int port;
     private String screenName;
@@ -82,6 +82,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
 
+            //TODO REMOVE
             chatsList.removeAllViews();
             for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i, "Anonymous", System.currentTimeMillis());}
 
