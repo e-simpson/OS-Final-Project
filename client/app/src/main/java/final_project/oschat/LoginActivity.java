@@ -41,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         resultIntent.putExtra("name", nameText.getText().toString());
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
+        overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_left);
     }
 
     public void onLoginFailed() {
@@ -73,7 +74,6 @@ public class LoginActivity extends AppCompatActivity {
         setupButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { login();}
         });
-
     }
 
     @Override

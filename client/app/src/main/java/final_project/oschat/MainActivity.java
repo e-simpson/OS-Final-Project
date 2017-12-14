@@ -55,13 +55,12 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.createGroupProgress) ProgressBar createChatRoomProgress;
 
 
-    Animation widgetIn;
-    Animation chatRoomIn;
     AsyncTask currentAsync;
     ScheduledExecutorService timedExecutor;
-    ArrayList<Integer> myChatRooms = new ArrayList<>();
-    int widgetShowing = 0;
-    Boolean startAnimationComplete = false;
+    private ArrayList<Integer> myChatRooms = new ArrayList<>();
+    private Animation widgetIn;
+    private int widgetShowing = 0;
+    private Boolean startAnimationComplete = false;
     private String screenName = "Anonymous";
 
 
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             chatRoomList.removeAllViews();
             for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, 0);}
 
-            
+
             currentAsync = null;
             hideProgressWheel();
             startAnimationComplete = true;
@@ -325,7 +324,6 @@ public class MainActivity extends AppCompatActivity {
         createChatRoomProgress.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.white), android.graphics.PorterDuff.Mode.SRC_ATOP);
 
         widgetIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_in);
-        chatRoomIn = AnimationUtils.loadAnimation(MainActivity.this, R.anim.card_slide_up_in);
     }
 
 

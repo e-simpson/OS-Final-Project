@@ -46,12 +46,12 @@ public class ChatActivity extends AppCompatActivity {
     @BindView(R.id.textBox) EditText textBox;
     @BindView(R.id.sendButton) Button sendButton;
 
-    Intent intent;
-    AsyncTask currentAsync;
-    ScheduledExecutorService timedExecutor;
-    Boolean startAnimationComplete = false;
-    int port;
-    String screenName;
+    private Intent intent;
+    private AsyncTask currentAsync;
+    private ScheduledExecutorService timedExecutor;
+    private Boolean startAnimationComplete = false;
+    private int port;
+    private String screenName;
 
 
 

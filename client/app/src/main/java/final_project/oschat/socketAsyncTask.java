@@ -17,9 +17,9 @@ public class socketAsyncTask extends AsyncTask<Void, Void, Void> {
     private String result;
     private String query;
     private int port;
-//    private final String host = "192.168.0.35";
-//private final String host = "172.30.152.1";
 
+//    private final String host = "192.168.0.35";
+//    private final String host = "172.30.152.1";
     private final String host = "127.0.0.1";
 
 
