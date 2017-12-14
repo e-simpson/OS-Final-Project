@@ -12,22 +12,25 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class socketTask extends AsyncTask<Void, Void, Void> {
+public class socketAsyncTask extends AsyncTask<Void, Void, Void> {
     private postSocketRunnable postExecutionRunnable;
     private String result;
     private String query;
     private int port;
-//    final String host = "192.168.0.35";
-    final String host = "127.0.0.1";
+//    private final String host = "192.168.0.35";
+//private final String host = "172.30.152.1";
+
+    private final String host = "127.0.0.1";
 
 
-    socketTask(String passedQuery, int passedPort) {
+
+    socketAsyncTask(String passedQuery, int passedPort) {
         super();
         port = passedPort;
         query = passedQuery;
     }
 
-    socketTask(String passedQuery, int passedPort, postSocketRunnable passedPostExecutionRunnable) {
+    socketAsyncTask(String passedQuery, int passedPort, postSocketRunnable passedPostExecutionRunnable) {
         super();
         port = passedPort;
         query = passedQuery;

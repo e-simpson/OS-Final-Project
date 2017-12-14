@@ -9,4 +9,6 @@
     <string name="my_groups">My chat rooms</string>
     <string name="create_group">CREATE CHAT ROOM</string>
     <string name="getting_rooms">Getting Chat rooms!</string>
+    <string name="screen_name">Screen name</string>
+    <string name="complete_setup">Complete Setup</string>
 </resources>

@@ -167,7 +167,7 @@
             android:text="@string/my_groups"
             android:textAlignment="textStart"
             android:textColor="@color/nav"
-            android:textSize="35sp"
+            android:textSize="25sp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"/>
