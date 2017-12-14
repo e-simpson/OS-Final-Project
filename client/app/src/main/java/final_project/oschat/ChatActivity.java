@@ -82,9 +82,9 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
 
-            //TODO REMOVE
-            chatsList.removeAllViews();
-            for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i, "Anonymous", System.currentTimeMillis());}
+//            //TODO REMOVE
+//            chatsList.removeAllViews();
+//            for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i, "Anonymous", System.currentTimeMillis());}
 
             currentAsync = null;
             startAnimationComplete = true;
