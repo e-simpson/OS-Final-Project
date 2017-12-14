@@ -46,33 +46,44 @@ public class ChatView extends AppCompatActivity {
 
 
 
-    void sendChat(String message){
-        new socketTask("Write " + message, intent.getIntExtra("port", 0)).execute();
-    }
 
+    //Server contact functions and UI thread callbacks
+    private class sendChatCallback extends postSocketRunnable{
+        @Override public void run() {
+            textBox.setText("");
+            getChats();
+        }
+    }
+    void sendChat(String message){
+        new socketTask("Write " + message, intent.getIntExtra("port", 0), new sendChatCallback()).execute();
+    }
 
     private class importChatsRunnable extends postSocketRunnable{
         @Override
         public void run() {
-            chatsList.removeAllViews();
-            for (int i = 0; i < returnedArray.length(); i++) {
-                try {addMessageToList(returnedArray.getJSONObject(i).getString("message"));}
-                catch (JSONException e) {e.printStackTrace();}
+            if (returnedArray != null) {
+                chatsList.removeAllViews();
+                for (int i = 0; i < returnedArray.length(); i++) {
+                    try {
+                        addMessageToList(returnedArray.getJSONObject(i).getString("message"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             currentAsync = null;
         }
     }
-    void retrieveChats(){
+    void getChats(){
         if (currentAsync == null) {
             currentAsync = new socketTask("Get", intent.getIntExtra("port", 0), new importChatsRunnable()).execute();
         }
     }
 
-
     void initScheduler(){
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(new Runnable() {
-            @Override public void run() {retrieveChats();}
+            @Override public void run() {getChats();}
         }, 0, 5, TimeUnit.SECONDS);
 
         for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i);}
@@ -80,6 +91,8 @@ public class ChatView extends AppCompatActivity {
 
 
 
+
+    //UI related functions
     private void scrollToBottom(){
         final Handler handler = new Handler();
         new Thread(new Runnable() {
@@ -96,7 +109,7 @@ public class ChatView extends AppCompatActivity {
         }).start();
     }
 
-    public void addMessageToList(final String message){
+    private void addMessageToList(final String message){
         final LinearLayout chatroomButton = new LinearLayout(this);
         chatroomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_chat)));
         chatroomButton.setPadding(60,30,60,30);
@@ -144,9 +157,21 @@ public class ChatView extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(10);
 
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                if (textBox.length() > 0){
+                    sendChat(textBox.getText().toString());
+                }
+            }
+        });
+
         this.getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
+
+
+
+    //Override activity methods
     @Override public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;

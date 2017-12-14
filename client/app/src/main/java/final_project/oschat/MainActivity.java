@@ -26,6 +26,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.toolbar_layout) CollapsingToolbarLayout toolbarLayout;
     @BindView(R.id.chatDisplay) LinearLayout chatRoomList;
     @BindView(R.id.actionText) TextView logText;
+    @BindView(R.id.actionProgress) ProgressBar actionProgress;
+
 
     @BindView(R.id.addGroupWidget) LinearLayout addChatRoomWidget;   //widget 1
     @BindView(R.id.addButton) Button addChatRoomButton;
@@ -58,7 +62,113 @@ public class MainActivity extends AppCompatActivity {
     ScheduledExecutorService timedExecutor;
     ArrayList<Integer> myChatRooms = new ArrayList<>();
     int widgetShowing = 0;
+    Boolean startAnimationComplete = false;
 
+
+
+
+
+    //Server contact functions and UI thread callbacks
+    private class addChatRoomCallback extends postSocketRunnable{
+        @Override public void run() {
+            actionProgress.setVisibility(View.INVISIBLE);
+            successCreateChatRoom();
+            getChatRooms();
+        }
+    }
+    void addChatRoom(String groupName){
+        new socketTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
+        actionProgress.setVisibility(View.VISIBLE);
+    }
+
+    private class joinChatRoomCallback extends postSocketRunnable{
+        @Override public void run() {
+            if (returnedArray != null) {
+                try {
+                    myChatRooms.add(returnedArray.getJSONObject(1).getInt("port"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            actionProgress.setVisibility(View.INVISIBLE);
+            successAddChatRoom();
+            getChatRooms();
+        }
+    }
+    void joinChatRoom(String groupName){
+        new socketTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
+        actionProgress.setVisibility(View.VISIBLE);
+    }
+
+    private class getChatRoomCallback extends postSocketRunnable{
+        @Override public void run() {
+            if (returnedArray != null) {
+                chatRoomList.removeAllViews();
+                for (int i = 0; i < returnedArray.length(); i++) {
+                    try {
+                        addChatRoomToList(i, returnedArray.getJSONObject(1).getString("name"), returnedArray.getJSONObject(1).getInt("port"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            currentAsync = null;
+            actionProgress.setVisibility(View.INVISIBLE);
+
+
+            System.out.println("@@@@@@@@@@@@@8 finish callback");
+            chatRoomList.removeAllViews();
+            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chatroom " + i, 0);}
+            startAnimationComplete = true;
+        }
+
+    }
+    void getChatRooms(){
+        if (currentAsync == null) {
+            currentAsync = new socketTask("Get", 2000, new getChatRoomCallback()).execute();
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    actionProgress.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    }
+
+    //Server GET scheduler
+    void initScheduler(){
+        ScheduledExecutorService timedExecutor = Executors.newScheduledThreadPool(1);
+        timedExecutor.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+//                Snackbar.make(chatRoomList, "Trying to get rooms", Snackbar.LENGTH_SHORT).show();
+                getChatRooms();
+            }
+        }, 0, 3, TimeUnit.SECONDS);
+
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                Snackbar.make(chatRoomList, "Trying to get rooms", Snackbar.LENGTH_SHORT).show();
+//                getChatRooms();
+//            }
+//        }, 400, 3000);
+    }
+
+
+
+
+    private class testCallBack extends postSocketRunnable{
+        @Override public void run() {
+            System.out.println("@@@@@@@@@@@@@" + returnedArray);
+//            Toast.makeText(getBaseContext(), returnedArray.toString(), Toast.LENGTH_LONG).show();
+        }
+    }
+    void testTask(String groupName){
+        new socketTask("Get", 2000, new testCallBack()).execute();
+    }
 
 
 
@@ -90,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             widgetShowing = 0;
         }
     }
-    public void addChatRoomToList(int groupID, final String groupName, final int port){
+    public void addChatRoomToList(int groupID, final String chatRoomName, final int port){
         final LinearLayout chatRoomButton = new LinearLayout(this);
         chatRoomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_group)));
         chatRoomButton.setPadding(60,30,60,30);
@@ -109,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
         TextView name = new TextView(this);
         name.setTextColor(getResources().getColor(R.color.white));
         name.setTextSize(20);
-        name.setText(groupName);
+        name.setText(chatRoomName);
         name.setGravity(Gravity.CENTER_VERTICAL);
         name.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         chatRoomButton.addView(name);
@@ -118,23 +228,39 @@ public class MainActivity extends AppCompatActivity {
         chatRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent i = new Intent(getBaseContext(), ChatView.class);
-                i.putExtra("chatroom_name", groupName);
+                i.putExtra("chatroom_name", chatRoomName);
                 i.putExtra("port", port);
                 MainActivity.this.startActivity(i);
             }
         });
-
-        TranslateAnimation translate = new TranslateAnimation(0, 0, 200, 0);
-        translate.setFillAfter(true);
-        translate.setDuration(800 + groupID*70);
-        chatRoomButton.startAnimation(translate);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {chatRoomButton.setElevation(6);}
 
         if (!myChatRooms.contains(port)){
             chatRoomButton.setAlpha(0.5F);
             chatRoomButton.setClickable(false);
+            chatRoomButton.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View view) {
+                    Snackbar
+                            .make(createChatRoomWidget, "Join this chat room to enter.", Snackbar.LENGTH_LONG)
+                            .setAction("JOIN", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    addChatRoomNameEditText.setText(chatRoomName);
+                                    showWidget(1);
+                                }
+                            })
+                            .show();
+                }
+            });
             chatRoomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_unjoined)));
+        }
+
+        if(!startAnimationComplete){
+            TranslateAnimation translate = new TranslateAnimation(0, 0, 200, 0);
+            translate.setFillAfter(true);
+            translate.setDuration(800 + groupID*70);
+            chatRoomButton.startAnimation(translate);
         }
 
         chatRoomList.addView(chatRoomButton);
@@ -202,61 +328,20 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-    //Server contact functions and UI thread callbacks
-    private class addChatRoomCallback extends postSocketRunnable{
-        @Override public void run() {
-            successCreateChatRoom();
-            getChatRoom();
-        }
-    }
-    void addChatRoom(String groupName){
-        new socketTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
-    }
-
-    private class joinChatRoomCallback extends postSocketRunnable{
-        @Override public void run() {
-            try {myChatRooms.add(returnedArray.getJSONObject(1).getInt("port"));}
-            catch (JSONException e) {e.printStackTrace();}
-            successAddChatRoom();
-            getChatRoom();
-        }
-    }
-    void joinChatRoom(String groupName){
-        new socketTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
-    }
-
-    private class getChatRoomCallback extends postSocketRunnable{
-        @Override public void run() {
-            chatRoomList.removeAllViews();
-            for (int i = 0; i < returnedArray.length(); i++) {
-                try {addChatRoomToList(i, returnedArray.getJSONObject(1).getString("name"), returnedArray.getJSONObject(1).getInt("port"));}
-                catch (JSONException e) {e.printStackTrace();}
-            }
-            currentAsync = null;
-        }
-    }
-    void getChatRoom(){
-        if (currentAsync == null) {
-            currentAsync = new socketTask("Get", 2000, new getChatRoomCallback()).execute();
-            logText.setText(R.string.getting_rooms);
-        }
-    }
-
-
-
-
-    //Server GET scheduler
-    void initScheduler(){
-        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-        exec.scheduleAtFixedRate(new Runnable() {@Override public void run() {
-            getChatRoom();}}, 0, 5, TimeUnit.SECONDS);
-    }
-
-
-
-
     //Override activity methods
+    @Override protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        initUI();
+    }
+
+    @Override protected void onStart() {
+        super.onStart();
+        initScheduler();
+        //        testTask("hello 3");
+    }
+
     @Override protected void onStop() {
         super.onStop();
         if (timedExecutor != null && !timedExecutor.isShutdown()){
@@ -267,13 +352,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        initUI();
-        initScheduler();
-
-        for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chatroom " + i, 2001);}
-    }
 }

@@ -4,8 +4,8 @@
     <string name="group_name">Chat room name</string>
     <string name="enter_a_unique_group_name">Enter a unique chat room name.</string>
     <string name="group_creation_completed">Chat room creation completed</string>
-    <string name="add_group">ADD CHAT ROOM</string>
-    <string name="add_an_existing_group">Add an existing chat room</string>
+    <string name="add_group">JOIN CHAT ROOM</string>
+    <string name="add_an_existing_group">Join an existing chat room</string>
     <string name="my_groups">My chat rooms</string>
     <string name="create_group">CREATE CHAT ROOM</string>
     <string name="getting_rooms">Getting Chat rooms!</string>

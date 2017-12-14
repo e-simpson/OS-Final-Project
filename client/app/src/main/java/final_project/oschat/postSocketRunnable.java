@@ -1,14 +1,13 @@
 package final_project.oschat;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * Created by evans on 12/8/2017.
  */
 
 public class postSocketRunnable implements Runnable{
-    JSONArray returnedArray;
+    JSONArray returnedArray = null;
 
     void setup(JSONArray passedArray){returnedArray = passedArray;}
 

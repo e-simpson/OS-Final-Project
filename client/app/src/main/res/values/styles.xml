@@ -29,7 +29,7 @@
 
     <style name="editText" parent="TextAppearance.AppCompat">
         <item name="colorAccent">@android:color/white</item>
-        <item name="android:textColorHint">#FFFFFF</item>
+        <item name="android:textColorHint">#8c8c8c</item>
         <item name="colorControlNormal">#FFFFFF</item>
         <item name="colorControlActivated">#FFFFFF</item>
         <item name="colorControlHighlight">#FFFFFF</item>
