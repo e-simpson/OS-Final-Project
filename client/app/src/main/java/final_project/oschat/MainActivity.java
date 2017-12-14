@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,24 +42,27 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.actionText) TextView logText;
 
     @BindView(R.id.addGroupWidget) LinearLayout addChatRoomWidget;   //widget 1
-        @BindView(R.id.addButton) Button addChatRoomButton;
-        @BindView(R.id.addGroupName) EditText addChatRoomNameEditText;
-        @BindView(R.id.addGroupProgress) ProgressBar addChatRoomProgress;
+    @BindView(R.id.addButton) Button addChatRoomButton;
+    @BindView(R.id.addGroupName) EditText addChatRoomNameEditText;
+    @BindView(R.id.addGroupProgress) ProgressBar addChatRoomProgress;
 
     @BindView(R.id.createGroupWidget) LinearLayout createChatRoomWidget;   //widget 2
-        @BindView(R.id.createButton) Button createChatRoomButton;
-        @BindView(R.id.newGroupName) EditText createChatRoomNameText;
-        @BindView(R.id.createGroupProgress) ProgressBar createChatRoomProgress;
+    @BindView(R.id.createButton) Button createChatRoomButton;
+    @BindView(R.id.newGroupName) EditText createChatRoomNameText;
+    @BindView(R.id.createGroupProgress) ProgressBar createChatRoomProgress;
+
 
     Animation widgetIn;
     Animation chatRoomIn;
     AsyncTask currentAsync;
     ScheduledExecutorService timedExecutor;
+    ArrayList<Integer> myChatRooms = new ArrayList<>();
     int widgetShowing = 0;
 
 
 
 
+    //UI related functions
     private void showWidget(int widget){
         createChatRoomWidget.setVisibility(View.GONE);
         createFab.setImageDrawable(getResources().getDrawable(R.drawable.create));
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             widgetShowing = 0;
         }
     }
-    public void addChatRoomToList(int groupID, final String groupName){
+    public void addChatRoomToList(int groupID, final String groupName, final int port){
         final LinearLayout chatRoomButton = new LinearLayout(this);
         chatRoomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_group)));
         chatRoomButton.setPadding(60,30,60,30);
@@ -103,18 +107,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         TextView name = new TextView(this);
-            name.setTextColor(getResources().getColor(R.color.white));
-            name.setTextSize(20);
-            name.setText(groupName);
-            name.setGravity(Gravity.CENTER_VERTICAL);
-            name.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            chatRoomButton.addView(name);
+        name.setTextColor(getResources().getColor(R.color.white));
+        name.setTextSize(20);
+        name.setText(groupName);
+        name.setGravity(Gravity.CENTER_VERTICAL);
+        name.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        chatRoomButton.addView(name);
 
         chatRoomButton.setClickable(true);
         chatRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent i = new Intent(getBaseContext(), ChatView.class);
                 i.putExtra("chatroom_name", groupName);
+                i.putExtra("port", port);
                 MainActivity.this.startActivity(i);
             }
         });
@@ -125,6 +130,12 @@ public class MainActivity extends AppCompatActivity {
         chatRoomButton.startAnimation(translate);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {chatRoomButton.setElevation(6);}
+
+        if (!myChatRooms.contains(port)){
+            chatRoomButton.setAlpha(0.5F);
+            chatRoomButton.setClickable(false);
+            chatRoomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_unjoined)));
+        }
 
         chatRoomList.addView(chatRoomButton);
     }
@@ -138,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         createChatRoomButton.setEnabled(false); createChatRoomButton.setVisibility(View.GONE);
         createChatRoomProgress.setVisibility(View.VISIBLE);
 
-        //start thread process
+        addChatRoom(createChatRoomNameText.getText().toString());
     }
     public void successCreateChatRoom(){
         createChatRoomProgress.setVisibility(View.GONE);
@@ -155,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         addChatRoomButton.setEnabled(false); addChatRoomButton.setVisibility(View.GONE);
         addChatRoomProgress.setVisibility(View.VISIBLE);
 
-        //start thread process
+        joinChatRoom(addChatRoomNameEditText.getText().toString());
     }
     public void successAddChatRoom(){
         addChatRoomProgress.setVisibility(View.GONE);
@@ -192,35 +203,60 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private class importGroupsRunnable extends postSocketRunnable{
+    //Server contact functions and UI thread callbacks
+    private class addChatRoomCallback extends postSocketRunnable{
+        @Override public void run() {
+            successCreateChatRoom();
+            getChatRoom();
+        }
+    }
+    void addChatRoom(String groupName){
+        new socketTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
+    }
+
+    private class joinChatRoomCallback extends postSocketRunnable{
+        @Override public void run() {
+            try {myChatRooms.add(returnedArray.getJSONObject(1).getInt("port"));}
+            catch (JSONException e) {e.printStackTrace();}
+            successAddChatRoom();
+            getChatRoom();
+        }
+    }
+    void joinChatRoom(String groupName){
+        new socketTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
+    }
+
+    private class getChatRoomCallback extends postSocketRunnable{
         @Override public void run() {
             chatRoomList.removeAllViews();
             for (int i = 0; i < returnedArray.length(); i++) {
-                try {
-                    addChatRoomToList(i, (String)returnedArray.get(i));}
+                try {addChatRoomToList(i, returnedArray.getJSONObject(1).getString("name"), returnedArray.getJSONObject(1).getInt("port"));}
                 catch (JSONException e) {e.printStackTrace();}
             }
             currentAsync = null;
         }
     }
-
-    void retrieveGroups(){
+    void getChatRoom(){
         if (currentAsync == null) {
-            currentAsync = new socketTask("Get", 2000, new importGroupsRunnable()).execute();
+            currentAsync = new socketTask("Get", 2000, new getChatRoomCallback()).execute();
+            logText.setText(R.string.getting_rooms);
         }
     }
 
+
+
+
+    //Server GET scheduler
     void initScheduler(){
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-        exec.scheduleAtFixedRate(new Runnable() {
-            @Override public void run() {retrieveGroups();}
-        }, 0, 5, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate(new Runnable() {@Override public void run() {
+            getChatRoom();}}, 0, 5, TimeUnit.SECONDS);
     }
 
 
-    
 
 
+    //Override activity methods
     @Override protected void onStop() {
         super.onStop();
         if (timedExecutor != null && !timedExecutor.isShutdown()){
@@ -238,10 +274,6 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         initScheduler();
 
-        for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chatroom " + i);}
-    }
-
-    @Override protected void onStart() {
-        super.onStart();
+        for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chatroom " + i, 2001);}
     }
 }

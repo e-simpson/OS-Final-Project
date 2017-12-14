@@ -8,4 +8,5 @@
     <string name="add_an_existing_group">Add an existing chat room</string>
     <string name="my_groups">My chat rooms</string>
     <string name="create_group">CREATE CHAT ROOM</string>
+    <string name="getting_rooms">Getting Chat rooms!</string>
 </resources>

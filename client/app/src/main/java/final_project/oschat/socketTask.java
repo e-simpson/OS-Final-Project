@@ -18,6 +18,12 @@ public class socketTask extends AsyncTask<Void, Void, Void> {
     private String query;
     private int port;
 
+    socketTask(String passedQuery, int passedPort) {
+        super();
+        port = passedPort;
+        query = passedQuery;
+    }
+
     socketTask(String passedQuery, int passedPort, postSocketRunnable passedPostExecutionRunnable) {
         super();
         port = passedPort;
@@ -56,12 +62,15 @@ public class socketTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override protected void onPostExecute(Void res) {
-        if (result != null && postExecutionRunnable != null){
+        if (result != null){
             JSONArray jsonArray = new JSONArray();
             try {jsonArray = new JSONArray(result);}
             catch (JSONException e) {e.printStackTrace();}
-            postExecutionRunnable.setup(jsonArray);
-            postExecutionRunnable.run();
+
+            if (postExecutionRunnable != null){
+                postExecutionRunnable.setup(jsonArray);
+                postExecutionRunnable.run();
+            }
         }
     }
 }

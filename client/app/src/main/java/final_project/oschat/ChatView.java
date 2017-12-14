@@ -44,23 +44,30 @@ public class ChatView extends AppCompatActivity {
     AsyncTask currentAsync;
     ScheduledExecutorService timedExecutor;
 
+
+
+    void sendChat(String message){
+        new socketTask("Write " + message, intent.getIntExtra("port", 0)).execute();
+    }
+
+
     private class importChatsRunnable extends postSocketRunnable{
         @Override
         public void run() {
             chatsList.removeAllViews();
             for (int i = 0; i < returnedArray.length(); i++) {
-                try {addMessageToList((String) returnedArray.get(i));}
+                try {addMessageToList(returnedArray.getJSONObject(i).getString("message"));}
                 catch (JSONException e) {e.printStackTrace();}
             }
             currentAsync = null;
         }
     }
-
     void retrieveChats(){
         if (currentAsync == null) {
             currentAsync = new socketTask("Get", intent.getIntExtra("port", 0), new importChatsRunnable()).execute();
         }
     }
+
 
     void initScheduler(){
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
@@ -70,8 +77,6 @@ public class ChatView extends AppCompatActivity {
 
         for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i);}
     }
-
-
 
 
 
