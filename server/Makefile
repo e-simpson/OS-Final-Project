@@ -1,4 +1,4 @@
-all: Client Server
+all: Client Server ChatProcess
 
 Client : Client.o socket.o Blockable.o
 	g++ -o Client Client.o socket.o Blockable.o -pthread -l rt
@@ -9,11 +9,17 @@ Client.o : Client.cpp socket.h
 Server : Server.o thread.o socket.o socketserver.o Blockable.o
 	g++ -o Server Server.o thread.o socket.o socketserver.o Blockable.o -pthread -l rt
 
+ChatProcess : ChatProcess.o thread.o socket.o socketserver.o Blockable.o
+	g++ -o ChatProcess ChatProcess.o thread.o socket.o socketserver.o Blockable.o -pthread -l rt
+
 Blockable.o : Blockable.h Blockable.cpp
 	g++ -c Blockable.cpp -std=c++11
 
 Server.o : Server.cpp thread.h socketserver.h
 	g++ -c Server.cpp -std=c++11
+
+ChatProcess.o: ChatProcess.cpp thread.h socketserver.h socket.h SharedObject.h Semaphore.h
+	g++ -c ChatProcess.cpp -std=c++11
 
 thread.o : thread.cpp thread.h
 	g++ -c thread.cpp -std=c++11
@@ -23,3 +29,4 @@ socket.o : socket.cpp socket.h
 
 socketserver.o : socketserver.cpp socket.h socketserver.h
 	g++ -c socketserver.cpp -std=c++11
+
