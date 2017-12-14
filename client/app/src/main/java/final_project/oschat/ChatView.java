@@ -7,33 +7,21 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -54,86 +42,30 @@ public class ChatView extends AppCompatActivity {
 
     Intent intent;
     AsyncTask currentAsync;
-    ScheduledExecutorService exec;
+    ScheduledExecutorService timedExecutor;
 
-    private class postOnSocketTask extends AsyncTask<Void, Void, Void> {
-        String result;
-        String query;
-
-        public postOnSocketTask(String passedQuery) {
-            super();
-            query = passedQuery;
-        }
-
-        protected Void doInBackground(Void... voids) {
-            try {
-                Socket socket = new Socket("127.0.0.1", intent.getIntExtra("port", 0));
-                if (!socket.isConnected()){ return null;}
-
-                PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-                out.println(query);
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String incoming = null;
-                while (incoming == null) {
-                    incoming = in.readLine();
-                    if (incoming != null) {
-                        result = incoming;
-                        break;
-                    }
-                }
-
-                try {
-                    socket.close();
-                    out.flush();
-                    out.close();
-                    in.close();
-                }
-                catch (IOException e) {e.printStackTrace();}
-            }
-            catch (Exception e) {e.printStackTrace();}
-            return null;
-        }
-
-        @Override protected void onPostExecute(Void res) {
-            if (result != null){
-                chatsList.removeAllViews();
-                try {
-                    JSONArray chatsArray = new JSONArray(result);
-                    for (int i = 0; i < chatsArray.length(); i++) {
-                        addMessageToList((String)chatsArray.get(i));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+    private class importChatsRunnable extends postSocketRunnable{
+        @Override
+        public void run() {
+            chatsList.removeAllViews();
+            for (int i = 0; i < returnedArray.length(); i++) {
+                try {addMessageToList((String) returnedArray.get(i));}
+                catch (JSONException e) {e.printStackTrace();}
             }
             currentAsync = null;
         }
     }
 
-
-    public class chatsRunnable implements Runnable{
-        JSONArray messageArray;
-
-        private void setup(JSONArray passedArray){messageArray = passedArray;}
-
-        @Override
-        public void run() {
-            addMessageToList("asd");
+    void retrieveChats(){
+        if (currentAsync == null) {
+            currentAsync = new socketTask("Get", intent.getIntExtra("port", 0), new importChatsRunnable()).execute();
         }
     }
-
-
 
     void initScheduler(){
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(new Runnable() {
-            @Override public void run() {
-                if (currentAsync == null) {
-//                    currentAsync = new postOnSocketTask("Get").execute();
-                    currentAsync = new socketTask("Get", intent.getIntExtra("port", 0), new chatsRunnable()).execute();
-                }
-            }
+            @Override public void run() {retrieveChats();}
         }, 0, 5, TimeUnit.SECONDS);
 
         for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i);}
@@ -225,8 +157,8 @@ public class ChatView extends AppCompatActivity {
 
     @Override protected void onStop() {
         super.onStop();
-        if (exec != null && !exec.isShutdown()){
-            exec.shutdown();
+        if (timedExecutor != null && !timedExecutor.isShutdown()){
+            timedExecutor.shutdown();
         }
         if (currentAsync != null && (!currentAsync.isCancelled() || currentAsync.getStatus() == AsyncTask.Status.RUNNING)){
             currentAsync.cancel(true);

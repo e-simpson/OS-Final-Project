@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">osChat</string>
     <string name="action_settings">Settings</string>
-    <string name="group_name">Chatroom name</string>
-    <string name="enter_a_unique_group_name">Enter a unique chatroom name.</string>
-    <string name="group_creation_completed">Chatroom creation completed</string>
-    <string name="add_group">ADD CHATROOM</string>
-    <string name="add_an_existing_group">Add an existing chatroom</string>
-    <string name="my_groups">My chatrooms</string>
-    <string name="create_group">CREATE CHATROOM</string>
+    <string name="group_name">Chat room name</string>
+    <string name="enter_a_unique_group_name">Enter a unique chat room name.</string>
+    <string name="group_creation_completed">Chat room creation completed</string>
+    <string name="add_group">ADD CHAT ROOM</string>
+    <string name="add_an_existing_group">Add an existing chat room</string>
+    <string name="my_groups">My chat rooms</string>
+    <string name="create_group">CREATE CHAT ROOM</string>
 </resources>

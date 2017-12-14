@@ -12,17 +12,13 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-/**
- * Created by evans on 12/8/2017.
- */
-
 public class socketTask extends AsyncTask<Void, Void, Void> {
-    private Runnable postExecutionRunnable;
+    private postSocketRunnable postExecutionRunnable;
     private String result;
     private String query;
     private int port;
 
-    public socketTask(String passedQuery, int passedPort, Runnable passedPostExecutionRunnable) {
+    socketTask(String passedQuery, int passedPort, postSocketRunnable passedPostExecutionRunnable) {
         super();
         port = passedPort;
         query = passedQuery;
@@ -64,8 +60,7 @@ public class socketTask extends AsyncTask<Void, Void, Void> {
             JSONArray jsonArray = new JSONArray();
             try {jsonArray = new JSONArray(result);}
             catch (JSONException e) {e.printStackTrace();}
-
-//            postExecutionRunnable.setup(jsonArray);
+            postExecutionRunnable.setup(jsonArray);
             postExecutionRunnable.run();
         }
     }
