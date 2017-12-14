@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<set xmlns:android="http://schemas.android.com/apk/res/android" android:shareInterpolator="false">
-    <scale android:fromYScale="20dp" android:toYScale="100dp" android:duration="800"/>
-</set>

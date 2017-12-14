@@ -19,6 +19,17 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
+    <style name="Login.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -29,7 +40,7 @@
 
     <style name="editText" parent="TextAppearance.AppCompat">
         <item name="colorAccent">@android:color/white</item>
-        <item name="android:textColorHint">#FFFFFF</item>
+        <item name="android:textColorHint">#8c8c8c</item>
         <item name="colorControlNormal">#FFFFFF</item>
         <item name="colorControlActivated">#FFFFFF</item>
         <item name="colorControlHighlight">#FFFFFF</item>
