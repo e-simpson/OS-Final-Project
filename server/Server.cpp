@@ -7,12 +7,12 @@
 #include <vector>
 #include <map>
 #include "SharedObject.h"
-
+#include "Semaphore.h"
 using namespace Sync;
 
 class SharedMap {
     public:
-    std::map<std::string, int> map;
+        std::string rooms[100];
 };
 
 class ShareInt {
@@ -24,9 +24,8 @@ class ServerThread : Thread {
     public:
     Socket * socket;
     bool runThread;
-    Shared<SharedMap> * chatrooms = new Shared<SharedMap> ("chatrooms");
-    Shared<ShareInt> * nextPort = new Shared<ShareInt>("nextPort");
-
+    Shared<ShareInt> nextPort = Shared<ShareInt>("nextPort");
+    Shared<SharedMap> chatrooms = Shared<SharedMap>("chatrooms");
 
     ServerThread(Socket * socket){
         this->socket = new Socket(*socket);
@@ -48,33 +47,47 @@ class ServerThread : Thread {
                 // Handle create new Chat Room request
                 if (request->ToString().find("Create") != std::string::npos){
                     // Calculate next port number n
-                    int portNum = this->nextPort->get()->port++;
+                    int portNum = this->nextPort->port++;
                     std::string name = request->ToString().substr(request->ToString().find(" ") + 1);
                     // Start new chatroom process with port number n
                     //TODO
+                    //system("./Chatroom " + portNum);
                     // Add chatroom name and port number to map
-                    this->chatrooms->get()->map[name] = portNum;
+                    chatrooms->rooms[portNum-2001] = name;
                     // Return chatroom name and port number in response
                     response =  name + " is now on port: " + std::to_string(portNum);
+
                 }
 
                 // handle join Chat Room request
-                if (request->ToString().find("Join") != std::string::npos){
+                else if (request->ToString().find("Join") != std::string::npos){
                     // Find chatroom port from map,
                     std::string name = request->ToString().substr(request->ToString().find(" ") + 1);
-                    int portNum = this->chatrooms->get()->map[name];
-                    // return port in response
-                    response =  name + " is running on port: " + std::to_string(portNum);
+                    int portNum = 0;
+                    for (int i = 0; i < this->nextPort->port - 2001; i++) {
+                        if (name == chatrooms->rooms[i]) {
+                            portNum = i + 2001;
+                            response = name + " is running on port: " + std::to_string(portNum);
+                        } else {
+                            response = "No chatroom named " + name;
+                        }
+                    }
                 }
 
                 // Handle get Chat Rooms request
-                if (request->ToString().find("Get") != std::string::npos){
+                else if (request->ToString().find("Get") != std::string::npos){
                     response =  "Running Chatrooms:\n";
-                    //Return a list of chatrooms and port numbers if theyre public
-                    std::map<std::string, int> m = this->chatrooms->get()->map;
-                    for(std::map<std::string, int>::iterator it = m.begin(); it != m.end(); ++it) {
-                        response += it->first + "\n";
+                    // Return a list of chatrooms and port numbers if theyre public
+                    for (int i = 0; i < this->nextPort->port - 2001; i++) {
+                        int portNum = i + 2001;
+                       std::string chatInfo = chatrooms->rooms[i] + " " + std::to_string(portNum);
+                        response += chatInfo + "\n";
                     }
+                }
+
+                // Invalid request
+                else {
+                    response =  "Invalid Request\n";
                 }
 
                 //Send response to client
@@ -86,14 +99,12 @@ class ServerThread : Thread {
 
 
             delete request;
+            delete this->socket;
             return 0l;
     }
 
     ~ServerThread(){
         this->runThread = false;
-        delete this->socket;
-        delete this->chatrooms;
-        delete this->nextPort;
         Sync::FlexWait theEnd(1, &terminationEvent);
         theEnd.Wait();
     }
@@ -105,8 +116,7 @@ class MainThread : Thread {
         bool run;
         SocketServer * socketServer;
         int port;
-        Shared<SharedMap> * chatrooms= new Shared<SharedMap>("chatrooms", true);
-        Shared<ShareInt> * nextPort = new Shared<ShareInt>("nextPort", true);
+
 
     MainThread(){
         run = true;
@@ -115,23 +125,28 @@ class MainThread : Thread {
     }
 
     long ThreadMain(){
+        // Vector for worker threads
         static std::vector<ServerThread*> threads;
+
+        // Loop  for main thread
         run = "true";
         do {
+            // Create socket an pass to new thread
             Socket socket = socketServer->Accept();
             threads.push_back(new ServerThread(&socket));
         } while (run);
+
+        // Delete Pointer
         delete socketServer;
         for (ServerThread *n : threads){
             delete n;
         }
+        return 0l;
     }
 
     ~MainThread(){
         run = false;
         socketServer->Shutdown();
-        delete this->chatrooms;
-        delete this->nextPort;
         Sync::FlexWait theEnd(1, &terminationEvent);
         theEnd.Wait();
     }
@@ -142,12 +157,18 @@ int main(void)
 {
     std::string run;
     MainThread * mainThread = new MainThread();
+    Shared<ShareInt> nextPort = Shared<ShareInt>("nextPort", true);
+    Shared<SharedMap> chatrooms = Shared<SharedMap>("chatrooms", true);
+    nextPort.get()->port = 2001;
+
+    chatrooms->rooms[0] = "Hello";
+
+
 
     do {
         std::cout << "Enter X to close server: ";
         std::cin >> run;
         if(run == "X"){
-            delete mainThread;
             continue;
         }
         else{
@@ -155,6 +176,6 @@ int main(void)
         }
     } while(run != "X");
 
-
+    delete mainThread;
     return 0;
 }
