@@ -114,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
 //            //TODO remove
 //            System.out.println("@@@@@@@@@@@@@8 finish callback");
 //            chatRoomList.removeAllViews();
-//            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, 0);}
+//            myChatRooms.add(2); myChatRooms.add(5); myChatRooms.add(6);
+//            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, i);}
 
 
             currentAsync = null;
@@ -331,20 +332,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//    //TODO remove
-//    private class testCallBack extends postSocketRunnable{
-//        @Override public void run() {
-//            System.out.println("@@@@@@@@@@@@@" + returnedArray);
-////            Toast.makeText(getBaseContext(), returnedArray.toString(), Toast.LENGTH_LONG).show();
-//        }
-//    }
-//    void testTask(String groupName){
-//        new socketAsyncTask("Get", 2000, new testCallBack()).execute();
-//    }
-
-
-
-
     //Override activity methods
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -365,8 +352,6 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 7);
-
-//        testTask("hello 3");
     }
 
     @Override protected void onStop() {
