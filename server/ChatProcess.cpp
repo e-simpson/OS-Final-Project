@@ -37,12 +37,24 @@ public:
     }
 
     long ThreadMain() override{
+        //Awaits a message from clients to the socket
         ByteArray receivedMessage = ByteArray();
         std::cout<<"Awaiting communtication...\n";
         currentSocket.Read(receivedMessage);
         std::string message = receivedMessage.ToString();
         std::cout<<"Message is " + message<<"\n";
-        if(message == "Get"){
+        //Invalid message
+        if(message.empty()){
+            std::string err = "Invalid message";
+            ByteArray error(err);
+            currentSocket.Write(error);
+            threadrunning = false;
+            return 0;
+        }
+        //Client is attempting to retrieve the messages
+        //Wait on the appropriate semaphores before reading the message file
+        std::string prefix = message.substr(0,3);
+        if(prefix == "Get"){
             std::cout<<"Retrieving messages...\n";
             s2->Wait();
             s1->Wait();
@@ -60,11 +72,17 @@ public:
             ByteArray resp(response);
             currentSocket.Write(resp);
         }
+            //A Client is writing a new message to the chatroom
         else if(message.find("Write") != std::string::npos){
             std::ofstream newOut;
+            //Timestamp for the message
             std::time_t result = std::time(nullptr);
+            //Parsing the user and the message contents
             std::string user = message.substr(0, message.find("Write")-1);
-            std::cout<<"Writing to the message";
+            std::string response = "Writing message";
+            ByteArray writeResponse(response);
+            std::cout<<response<<"\n";
+            //The messages are stored in JSON for easy client-side parsing
             std::string value="{message:\"";
             value += message.substr((message.find("Write") + 6));
             value+="\", time:\"";
@@ -78,15 +96,20 @@ public:
             newOut.close();
             s1->Signal();
             s2->Signal();
+            currentSocket.Write(writeResponse);
         }
-
+        //Chatroom is being shut down
         else if(message == "Kill"){
-            std::cout<<"Shutting down server\n";
+            std::string resp = "Shutting down server";
+            std::cout<<resp<<"\n";
+            ByteArray killresponse(resp);
+            currentSocket.Write(killresponse);
             processRunning = false;
         }
         else{
             std::cout<<"Unknown transaction\n";
         }
+        //Marking that the thread has finished so that the main thread can delete it
         std::cout<<"Transaction complete for thread " + std::to_string(threadID) + "\n";
         threadrunning = false;
         return 0;
@@ -111,6 +134,7 @@ public:
 
 class ChatProcess{
 public:
+    //Vector to hold pointers to all the currently operating threads
     std::vector<ChatThread *> runningThreads;
     Semaphore * s1 = new Semaphore("s1", 1, true);
     Semaphore * s2 = new Semaphore("s2", 0, true);
@@ -122,6 +146,7 @@ public:
         threadcount = 0;
         processrunning = true;
         SocketServer sockServ(portnum);
+        //Custom names for the semaphores based on the chatroom port so that multiple chatroom processes can be supported
         chatroom = "messages" + std::to_string(portnum);
         std::string sem1 = "s1" + chatroom;
         std::string sem2  ="s2" + chatroom;
@@ -138,12 +163,14 @@ public:
                 std::cout<<"Connection established\n";
                 runningThreads.push_back(new ChatThread(currSocket, &socketServer, chatroom, threadcount));
                 threadcount++;
+                //Checking if any thread has received a kill message, thus triggering the process to end
                 for (int i = runningThreads.size()-1; i >= 0; i--){
                     if(!runningThreads[i]->continueProcess()){
                         this->processrunning=false;
                     }
+                    //Checking for finished threads and deleting them
                     if(!runningThreads[i]->isRunning()){
-                        std::cout << "[Stopping and deleting thread " << i << "]\n";
+                        std::cout << "Stopping and deleting thread " << i << "\n";
                         delete (runningThreads[i]);
                         runningThreads.erase(runningThreads.begin()+i);
                         threadcount--;
@@ -155,6 +182,7 @@ public:
         std::cout<<"Exiting server\n";
         delete s1;
         delete s2;
+        //Cleaning up all threads
         for (int i = runningThreads.size()-1; i >= 0; i--){
             delete(runningThreads[i]);
         }
@@ -163,6 +191,7 @@ public:
 };
 
 int main(int arv, char *argv[]){
+    //Creating a new process from Bash arguments, called from the main server everytime a create message arrives
     int portNumber = atoi(argv[1]);
     ChatProcess chatterbox(portNumber);
 }
