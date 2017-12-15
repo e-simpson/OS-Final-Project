@@ -255,7 +255,7 @@ public class ChatActivity extends AppCompatActivity {
 
         intent = getIntent();
         port = intent.getIntExtra("port", 0);
-        screenName = intent.getStringExtra("name");
+        screenName = intent.getStringExtra("screenName");
 
         uiInit();
     }
