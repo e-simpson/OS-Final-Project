@@ -35,6 +35,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
+    //main activity UI binding
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.createFab) FloatingActionButton createFab;
     @BindView(R.id.addFab) FloatingActionButton addFab;
@@ -43,29 +45,36 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.screenNameText) TextView userNameText;
     @BindView(R.id.actionProgress) ProgressBar actionProgress;
 
-
-    @BindView(R.id.addGroupWidget) LinearLayout addChatRoomWidget;   //widget 1
+    //widget 1 binding
+    @BindView(R.id.addGroupWidget) LinearLayout addChatRoomWidget;
     @BindView(R.id.addButton) Button addChatRoomButton;
     @BindView(R.id.addGroupName) EditText addChatRoomNameEditText;
     @BindView(R.id.addGroupProgress) ProgressBar addChatRoomProgress;
 
-    @BindView(R.id.createGroupWidget) LinearLayout createChatRoomWidget;   //widget 2
+    //widget 2 binding
+    @BindView(R.id.createGroupWidget) LinearLayout createChatRoomWidget;
     @BindView(R.id.createButton) Button createChatRoomButton;
     @BindView(R.id.newGroupName) EditText createChatRoomNameText;
     @BindView(R.id.createGroupProgress) ProgressBar createChatRoomProgress;
 
 
-    AsyncTask currentAsync;
-    ScheduledExecutorService timedExecutor;
-    private ArrayList<Integer> myChatRooms = new ArrayList<>();
+
+
+    //-----Main Variables--------------------------------------------------
+    AsyncTask currentAsync;                     //currently running async task
+    ScheduledExecutorService timedExecutor;     //current timed executor that runs the scheduled server polling
+    private ArrayList<Integer> myChatRooms = new ArrayList<>();     //arraylist to track joined chat rooms
     private Animation widgetIn;
-    private int widgetShowing = 0;
+    private int widgetShowing = 0;              //variable to track open widget
     private Boolean startAnimationComplete = false;
-    private String screenName = "Anonymous";
+    private String screenName = "Anonymous";    //tracks current user screen name from setup
 
 
 
-    //Server contact functions and UI thread callbacks
+
+    //-----Server contact functions and UI thread callbacks--------------------------------------------------
+
+    //callback after server successfully adds a chat room
     private class addChatRoomCallback extends postSocketRunnable{
         @Override public void run() {
             hideProgressWheel();
@@ -73,11 +82,13 @@ public class MainActivity extends AppCompatActivity {
             getChatRooms();
         }
     }
+    //ignites async task to add chat room
     void addChatRoom(String groupName){
         new socketAsyncTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
+    //callback after server successfully joins a chat room
     private class joinChatRoomCallback extends postSocketRunnable{
         @Override public void run() {
             if (returnedArray != null) {
@@ -93,11 +104,13 @@ public class MainActivity extends AppCompatActivity {
             getChatRooms();
         }
     }
+    //ignites async task to join chat room
     void joinChatRoom(String groupName){
         new socketAsyncTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
+    //callback after server successfully gets all the chat rooms
     private class getChatRoomCallback extends postSocketRunnable{
         @Override public void run() {
             if (returnedArray != null) {
@@ -111,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-//            //TODO remove
+//            //for TESTING
 //            System.out.println("@@@@@@@@@@@@@8 finish callback");
 //            chatRoomList.removeAllViews();
 //            myChatRooms.add(2); myChatRooms.add(5); myChatRooms.add(6);
@@ -123,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
             startAnimationComplete = true;
         }
     }
+    //ignites async task to get all available chat room
     void getChatRooms(){
         if (currentAsync == null) {
             currentAsync = new socketAsyncTask("Get", 2000, new getChatRoomCallback()).execute();
@@ -136,7 +150,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Server GET scheduler
+
+
+
+    //-----Server GET scheduler--------------------------------------------------
+    //schedules a chat room list refresh every 2 seconds
     void initScheduler(){
         ScheduledExecutorService timedExecutor = Executors.newScheduledThreadPool(1);
         timedExecutor.scheduleAtFixedRate(new Runnable() {
@@ -145,20 +163,13 @@ public class MainActivity extends AppCompatActivity {
                 getChatRooms();
             }
         }, 0, 3, TimeUnit.SECONDS);
-
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                Snackbar.make(chatRoomList, "Trying to get rooms", Snackbar.LENGTH_SHORT).show();
-//                getChatRooms();
-//            }
-//        }, 400, 3000);
     }
 
 
 
 
-    //UI related functions
+    //-----UI related functions--------------------------------------------------
+    //used to show a widget (add or join a group
     private void showWidget(int widget){
         createChatRoomWidget.setVisibility(View.GONE);
         createFab.setImageDrawable(getResources().getDrawable(R.drawable.create));
@@ -187,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //adds a chat room button to the main list view
+    //makes it un-clickable if the chat room has not been joined
     private void addChatRoomToList(int groupID, final String chatRoomName, final int port){
         final LinearLayout chatRoomButton = new LinearLayout(this);
         chatRoomButton.setBackground((getResources().getDrawable(R.drawable.roundbox_group)));
@@ -250,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
         chatRoomList.addView(chatRoomButton);
     }
 
+    //called when a chat room button is pressed
+    //opens the chat view activity
     private void openChatRoomView(String chatRoomName, int port){
         Intent i = new Intent(getBaseContext(), ChatActivity.class);
         i.putExtra("chatroom_name", chatRoomName);
@@ -258,9 +273,9 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.this.startActivity(i);
     }
 
+    //hides the progress wheel using handler
     private void hideProgressWheel(){
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 actionProgress.setVisibility(View.INVISIBLE);
@@ -268,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
         }, 600);
     }
 
+    //called when create chat button is pressed
     private void submitCreateChatRoom(){
         if (createChatRoomNameText.getText().length() == 0){
             Snackbar.make(createChatRoomWidget, "Enter a valid group name.", Snackbar.LENGTH_LONG).show();
@@ -279,12 +295,14 @@ public class MainActivity extends AppCompatActivity {
 
         addChatRoom(createChatRoomNameText.getText().toString());
     }
+    //called after successful create chat room
     private void successCreateChatRoom(){
         createChatRoomProgress.setVisibility(View.GONE);
         createChatRoomButton.setEnabled(true); createChatRoomButton.setVisibility(View.VISIBLE);
         Snackbar.make(createChatRoomWidget, "Chat room created successfully", Snackbar.LENGTH_LONG).show();
     }
 
+    //called when join chat button is pressed
     private void submitAddChatRoom(){
         if (addChatRoomNameEditText.getText().length() == 0){
             Snackbar.make(addChatRoomWidget, "Enter a valid group name.", Snackbar.LENGTH_LONG).show();
@@ -296,12 +314,14 @@ public class MainActivity extends AppCompatActivity {
 
         joinChatRoom(addChatRoomNameEditText.getText().toString());
     }
+    //called after successful join chat room
     private void successAddChatRoom(){
         addChatRoomProgress.setVisibility(View.GONE);
         addChatRoomButton.setEnabled(true); addChatRoomButton.setVisibility(View.VISIBLE);
         Snackbar.make(addChatRoomWidget, "Chat room added successfully", Snackbar.LENGTH_LONG).show();
     }
 
+    //initiates the UI resources
     private void initUI(){
         setSupportActionBar(toolbar);
 
@@ -330,11 +350,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    //-----Override activity methods--------------------------------------------------
 
-
-    //Override activity methods
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    //receives log in activity success and saves the username to a variable for later use
+    //then starts the scheduled GET synchronization
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 7) {
             if (resultCode == RESULT_OK) {
                 screenName = data.getStringExtra("name");
@@ -344,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //initializes the view, binds the UI, and starts the login intent
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -354,6 +375,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, 7);
     }
 
+    //properly shuts down an active timed executor, and currently running async task, if there is one
     @Override protected void onStop() {
         super.onStop();
         if (timedExecutor != null && !timedExecutor.isShutdown()){

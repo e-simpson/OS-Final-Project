@@ -40,12 +40,17 @@ import butterknife.ButterKnife;
  */
 
 public class ChatActivity extends AppCompatActivity {
+
+    //main activity UI binding
     @BindView(R.id.chatViewToolbar) Toolbar toolbar;
     @BindView(R.id.chats) LinearLayout chatsList;
     @BindView(R.id.scrollView) ScrollView scrollView;
     @BindView(R.id.textBox) EditText textBox;
     @BindView(R.id.sendButton) Button sendButton;
 
+
+
+    //-----Main Variables--------------------------------------------------
     AsyncTask currentAsync;
     ScheduledExecutorService timedExecutor;
     private Intent intent;
@@ -56,18 +61,21 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-
-    //Server contact functions and UI thread callbacks
+    //-----Server contact functions and UI thread callbacks--------------------------------------------------
+    //callback after server successfully sends a chat
     private class sendChatCallback extends postSocketRunnable{
         @Override public void run() {
             textBox.setText("");
             getChats();
         }
     }
+    //ignites async task to send a chat to the proper port
     void sendChat(String message){
         new socketAsyncTask(screenName + " Write " + message, port, new sendChatCallback()).execute();
     }
 
+    //callback after server successfully gets all a chats
+    //adds them to the view
     private class importChatsRunnable extends postSocketRunnable{
         @Override
         public void run() {
@@ -82,7 +90,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
 
-//            //TODO REMOVE
+//            //for TESTING
 //            chatsList.removeAllViews();
 //            for (int i = 1; i <= 20; i++) { addMessageToList("Chat" + i, "Anonymous", System.currentTimeMillis());}
 
@@ -90,6 +98,7 @@ public class ChatActivity extends AppCompatActivity {
             startAnimationComplete = true;
         }
     }
+    //ignites async task to retrieve all chats for a specific
     void getChats(){
         Snackbar.make(chatsList, "Refreshing", Snackbar.LENGTH_SHORT);
         if (currentAsync == null) {
@@ -97,17 +106,23 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+
+
+
+    //-----Server GET scheduler--------------------------------------------------
+    //schedules a chat room list refresh every second
     void initScheduler(){
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(new Runnable() {
             @Override public void run() {getChats();}
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
 
 
 
-    //UI related functions
+    //-----UI related functions--------------------------------------------------
+    //scrolls the user to the bottom when first opening the list
     private void scrollToBottom(){
         final Handler handler = new Handler();
         new Thread(new Runnable() {
@@ -124,6 +139,7 @@ public class ChatActivity extends AppCompatActivity {
         }).start();
     }
 
+    //adds a chat bubble the main chat list
     @SuppressLint("SetTextI18n")
     private void addMessageToList(final String message, final String userName, final long utcTime){
         LinearLayout chat = new LinearLayout(this);
@@ -202,9 +218,8 @@ public class ChatActivity extends AppCompatActivity {
         chatsList.addView(chat);
     }
 
+    //initiates the UI resources
     private void uiInit(){
-
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(intent.getStringExtra("chatroom_name"));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -225,12 +240,14 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-    //Override activity methods
+    //-----Override activity methods--------------------------------------------------
+    //disables ending the login activity to enter the main activity before setup
     @Override public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
 
+    //initializes the view, binds the UI, and saves the port and screen name
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chat_activity);
@@ -243,12 +260,13 @@ public class ChatActivity extends AppCompatActivity {
         uiInit();
     }
 
-    @Override
-    protected void onStart() {
+    //starts the scheduled GET synchronization
+    @Override protected void onStart() {
         super.onStart();
         initScheduler();
     }
 
+    //properly shuts down an active timed executor, and currently running async task, if there is one
     @Override protected void onStop() {
         super.onStop();
         if (timedExecutor != null && !timedExecutor.isShutdown()){

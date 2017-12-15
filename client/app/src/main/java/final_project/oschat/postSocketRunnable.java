@@ -7,9 +7,9 @@ import org.json.JSONArray;
  */
 
 public class postSocketRunnable implements Runnable{
-    JSONArray returnedArray = null;
+    JSONArray returnedArray = null;             //json array to hold parsed server response
 
-    void setup(JSONArray passedArray){returnedArray = passedArray;}
+    void setup(JSONArray passedArray){returnedArray = passedArray;}     //load in the server response
 
-    @Override public void run() {}
+    @Override public void run() {}          //method to run in the UIthread as callback
 }
