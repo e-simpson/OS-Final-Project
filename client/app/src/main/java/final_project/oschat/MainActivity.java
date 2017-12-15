@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 chatRoomList.removeAllViews();
                 for (int i = 0; i < returnedArray.length(); i++) {
                     try {
-                        addChatRoomToList(i, returnedArray.getJSONObject(1).getString("name"), returnedArray.getJSONObject(1).getInt("port"));
+                        addChatRoomToList(i, returnedArray.getJSONObject(i).getString("name"), returnedArray.getJSONObject(i).getInt("port"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
