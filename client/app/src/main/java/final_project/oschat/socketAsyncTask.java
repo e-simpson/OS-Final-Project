@@ -73,7 +73,7 @@ public class socketAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             //remove the null character if there is one (trimming)
-            if (result.substring(0, 4).equals("null")){
+            if (result != null && result.length() >= 4 && result.substring(0, 4).equals("null")){
                 result = result.substring(4);
             }
         }

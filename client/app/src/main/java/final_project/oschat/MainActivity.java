@@ -91,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
     //callback after server successfully joins a chat room
     private class joinChatRoomCallback extends postSocketRunnable{
         @Override public void run() {
-            if (returnedArray != null) {
+            if (returnedArray != null && returnedArray.length() > 0) {
                 try {
-                    myChatRooms.add(returnedArray.getJSONObject(1).getInt("port"));
+                    myChatRooms.add(returnedArray.getJSONObject(0).getInt("port"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
