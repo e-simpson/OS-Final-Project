@@ -18,9 +18,9 @@ public class socketAsyncTask extends AsyncTask<Void, Void, Void> {
     private String query;
     private int port;
 
-//    private final String host = "192.168.0.35";
+    private final String host = "192.168.0.35";
 //    private final String host = "172.30.152.1";
-      private final String host = "172.30.108.52";
+//    private final String host = "127.0.0.1";
 
 
 
@@ -38,10 +38,8 @@ public class socketAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     protected Void doInBackground(Void... voids) {
-        System.out.println("@@@@@@@@@@@@@0");
         try {
             Socket socket = new Socket(host, port);
-            System.out.println("@@@@@@@@@@@@@1" + socket.isConnected());
 
             if (!socket.isConnected()){ return null;}
 
@@ -50,50 +48,30 @@ public class socketAsyncTask extends AsyncTask<Void, Void, Void> {
             out.flush();
 
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("@@@@@@@@@@@@@2 is ready: " + in.ready());
-
-
-//            try {
-//                int charsRead = 0;
-//                char[] buffer = new char[2048];
-//                while ((charsRead = in.read(buffer)) != -1) {
-//                    result += new String(buffer).substring(0, charsRead);
-//                }
-//            } catch (IOException e) {
-//                e.getMessage();
-//            }
-
-//            String incoming = null;
-//            while (incoming == null) {
-//                incoming = in.readLine();
-//                if (incoming != null) {
-//                    result = incoming;
-//                    break;
-//                }
-//                System.out.println("@@@@@@@@@@@@@" + in.readLine());
-//            }
-//            System.out.println("@@@@@@@@@@@@@3 " + incoming);
-
-            result = in.readLine();
-
-            System.out.println("@@@@@@@@@@@@@4 " + result);
-
 
             try {
-                socket.close();
-                out.flush();
-                out.close();
-                in.close();
-                System.out.println("@@@@@@@@@@@@@5 " + socket.isConnected());
+                int charsRead = 0;
+                char[] buffer = new char[2048];
+                while ((charsRead = in.read(buffer)) != -1) {
+                    out.flush();
+                    result += new String(buffer).substring(0, charsRead);
+                    in.close();
+                    out.close();
+                    socket.close();
+                }
+            } catch (IOException e) {
+                e.getMessage();
             }
-            catch (IOException e) {e.printStackTrace();}
+
+            if (result.substring(0, 4).equals("null")){
+                result = result.substring(4);
+            }
         }
         catch (Exception e) {e.printStackTrace();}
         return null;
     }
 
     @Override protected void onPostExecute(Void res) {
-        System.out.println("@@@@@@@@@@@@@6 done");
         if (result != null){
             JSONArray jsonArray = new JSONArray();
             try {jsonArray = new JSONArray(result);}

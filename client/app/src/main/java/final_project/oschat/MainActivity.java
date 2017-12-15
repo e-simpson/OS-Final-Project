@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     void addChatRoom(String groupName){
-        new socketAsyncTask("Create " + groupName, 2000, new addChatRoomCallback()).execute();
+        new socketAsyncTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     void joinChatRoom(String groupName){
-        new socketAsyncTask("Join " + groupName, 2000, new joinChatRoomCallback()).execute();
+        new socketAsyncTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
@@ -112,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
 //            //TODO remove
-            System.out.println("@@@@@@@@@@@@@8 finish callback");
-            chatRoomList.removeAllViews();
-            myChatRooms.add(2001);
-            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, 2001);}
+//            System.out.println("@@@@@@@@@@@@@8 finish callback");
+//            chatRoomList.removeAllViews();
+//            myChatRooms.add(2); myChatRooms.add(5); myChatRooms.add(6);
+//            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, i);}
 
 
             currentAsync = null;
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         addChatRoomNameEditText.setEnabled(false);
         addChatRoomButton.setEnabled(false); addChatRoomButton.setVisibility(View.GONE);
         addChatRoomProgress.setVisibility(View.VISIBLE);
-        System.out.println("'" + addChatRoomNameEditText.getText().toString() + "'");
+
         joinChatRoom(addChatRoomNameEditText.getText().toString());
     }
     private void successAddChatRoom(){
@@ -332,20 +332,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-//    //TODO remove
-//    private class testCallBack extends postSocketRunnable{
-//        @Override public void run() {
-//            System.out.println("@@@@@@@@@@@@@" + returnedArray);
-////            Toast.makeText(getBaseContext(), returnedArray.toString(), Toast.LENGTH_LONG).show();
-//        }
-//    }
-//    void testTask(String groupName){
-//        new socketAsyncTask("Get", 2000, new testCallBack()).execute();
-//    }
-
-
-
-
     //Override activity methods
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -366,8 +352,6 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 7);
-
-//        testTask("hello 3");
     }
 
     @Override protected void onStop() {
