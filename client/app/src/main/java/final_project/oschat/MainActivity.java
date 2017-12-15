@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     //ignites async task to add chat room
-    void addChatRoom(String groupName){
-        new socketAsyncTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
+    void createChatRoom(String groupName){
+        new socketAsyncTask("Create " + groupName, 2000, new addChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     }
     //ignites async task to join chat room
     void joinChatRoom(String groupName){
-        new socketAsyncTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
+        new socketAsyncTask("Join " + groupName, 2000, new joinChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         createChatRoomButton.setEnabled(false); createChatRoomButton.setVisibility(View.GONE);
         createChatRoomProgress.setVisibility(View.VISIBLE);
 
-        addChatRoom(createChatRoomNameText.getText().toString());
+        createChatRoom(createChatRoomNameText.getText().toString());
     }
     //called after successful create chat room
     private void successCreateChatRoom(){
