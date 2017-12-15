@@ -345,12 +345,12 @@ class MainThread : Thread {
             // Create socket an pass to new thread
             Socket socket = socketServer->Accept();
             threads.push_back(new ServerThread(&socket));
-//            for (int i = threads.size()-1; i >= 0; i--){
-//                if(!threads[i]->running){
-//                    delete (threads[i]);
-//                    threads.erase(threads.begin()+i);
-//                }
-//            }
+            for (int i = threads.size()-1; i >= 0; i--){
+                if(!threads[i]->running){
+                    delete (threads[i]);
+                    threads.erase(threads.begin()+i);
+                }
+            }
         } while (run);
 
         // Delete Pointer
