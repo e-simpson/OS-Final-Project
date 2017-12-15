@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     void addChatRoom(String groupName){
-        new socketAsyncTask("Join " + groupName, 2000, new addChatRoomCallback()).execute();
+        new socketAsyncTask("Create " + groupName, 2000, new addChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     void joinChatRoom(String groupName){
-        new socketAsyncTask("Create " + groupName, 2000, new joinChatRoomCallback()).execute();
+        new socketAsyncTask("Join " + groupName, 2000, new joinChatRoomCallback()).execute();
         actionProgress.setVisibility(View.VISIBLE);
     }
 
@@ -112,9 +112,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
 //            //TODO remove
-//            System.out.println("@@@@@@@@@@@@@8 finish callback");
-//            chatRoomList.removeAllViews();
-//            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, 0);}
+            System.out.println("@@@@@@@@@@@@@8 finish callback");
+            chatRoomList.removeAllViews();
+            myChatRooms.add(2001);
+            for (int i = 1; i <= 10; i++) { addChatRoomToList(i,"Chat Room " + i, 2001);}
 
 
             currentAsync = null;
@@ -292,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         addChatRoomNameEditText.setEnabled(false);
         addChatRoomButton.setEnabled(false); addChatRoomButton.setVisibility(View.GONE);
         addChatRoomProgress.setVisibility(View.VISIBLE);
-
+        System.out.println("'" + addChatRoomNameEditText.getText().toString() + "'");
         joinChatRoom(addChatRoomNameEditText.getText().toString());
     }
     private void successAddChatRoom(){
