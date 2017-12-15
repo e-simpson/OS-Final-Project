@@ -289,16 +289,19 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(createChatRoomWidget, "Enter a valid group name.", Snackbar.LENGTH_LONG).show();
             return;
         }
-        createChatRoomNameText.setEnabled(false);
-        createChatRoomButton.setEnabled(false); createChatRoomButton.setVisibility(View.GONE);
         createChatRoomProgress.setVisibility(View.VISIBLE);
+        createChatRoomNameText.setEnabled(false);
+        createChatRoomButton.setEnabled(false);
+        createChatRoomButton.setVisibility(View.GONE);
 
         createChatRoom(createChatRoomNameText.getText().toString());
     }
     //called after successful create chat room
     private void successCreateChatRoom(){
         createChatRoomProgress.setVisibility(View.GONE);
-        createChatRoomButton.setEnabled(true); createChatRoomButton.setVisibility(View.VISIBLE);
+        createChatRoomNameText.setEnabled(true);
+        createChatRoomButton.setEnabled(true);
+        createChatRoomButton.setVisibility(View.VISIBLE);
         Snackbar.make(createChatRoomWidget, "Chat room created successfully", Snackbar.LENGTH_LONG).show();
     }
 
@@ -308,16 +311,19 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(addChatRoomWidget, "Enter a valid group name.", Snackbar.LENGTH_LONG).show();
             return;
         }
-        addChatRoomNameEditText.setEnabled(false);
-        addChatRoomButton.setEnabled(false); addChatRoomButton.setVisibility(View.GONE);
         addChatRoomProgress.setVisibility(View.VISIBLE);
+        addChatRoomNameEditText.setEnabled(false);
+        addChatRoomButton.setEnabled(false);
+        addChatRoomButton.setVisibility(View.GONE);
 
         joinChatRoom(addChatRoomNameEditText.getText().toString());
     }
     //called after successful join chat room
     private void successAddChatRoom(){
         addChatRoomProgress.setVisibility(View.GONE);
-        addChatRoomButton.setEnabled(true); addChatRoomButton.setVisibility(View.VISIBLE);
+        addChatRoomNameEditText.setEnabled(true);
+        addChatRoomButton.setEnabled(true);
+        addChatRoomButton.setVisibility(View.VISIBLE);
         Snackbar.make(addChatRoomWidget, "Chat room added successfully", Snackbar.LENGTH_LONG).show();
     }
 
